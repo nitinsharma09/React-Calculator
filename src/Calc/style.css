@@ -52,10 +52,10 @@ html , body{
     border: none;
     width: 100%;
     color: black;
-    padding: 27px 30px;
+    padding: 23px 30px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 16px;
+    font-size: 22px;
     cursor: pointer;
 }

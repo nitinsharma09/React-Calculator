@@ -16,7 +16,9 @@ class Calculator extends Component{
 		this.state={
 			values : values,
 			expr : expr,
-			answer : 0
+			answer : 0,
+			number:'',
+			last : '',
 		};
 		this.getButton = this.getButton.bind(this);
 		this.handleValue = this.handleValue.bind(this);
@@ -34,10 +36,30 @@ class Calculator extends Component{
 		{
 			this.setState({expr : [] , answer:0});
 		}
-		else if ((i>=0 && i<=9) || (i === '+') || (i === '-') || (i === '/') || (i === '*') || (i === '(') || (i ===')'))
+		else if(i === '<-')
 		{
-			console.log("In Festival");
 			let arr = this.state.expr;
+			if(this.state.answer!='')
+				this.setState({answer:''});
+			if(arr.length!==0)
+			{
+				arr.pop();
+			}
+			this.setState({expr:arr});
+		}
+		else if((i>=0 && i<=9) || i == '.') 
+		{
+			if(this.state.answer==='')
+				this.setState({answer:''});
+			let arr = this.state.expr;
+			arr.push(i);
+			this.setState({expr : arr});
+		}
+		else if((i === '+') || (i === '-') || (i === '/') || (i === '*') || (i === '(') || (i ===')'))
+		{
+			let arr = this.state.expr;
+			if(this.state.answer!=='')
+				arr.push(parseFloat(this.state.answer));
 			arr.push(i);
 			this.setState({expr : arr});
 		}
@@ -49,14 +71,15 @@ class Calculator extends Component{
 		var stackInt = [];
 		var stackOps = [];
 		var flag = 0;
+		console.log('expr ' + expr);
 		for(let i = 0 ; i < expr.length ; i++)
 		{
 			console.log(expr[i] + ' ');
-			if(expr[i]>=0 && expr[i]<=9)
+			if((expr[i]>=0 && expr[i]<=9) || expr[i]=='.')
 			{
 				console.log("Pushing in staclInt " + stackInt);
 				let a = "";
-				while (i < expr.length && expr[i] >= 0 && expr[i] <= 9)
+				while (i < expr.length && (expr[i] >= 0 && expr[i] <= 9) || expr[i]=='.') 
                 {
                 	a = a + expr[i];
                 	console.log("Pushing in stackInt " + stackInt);
@@ -68,7 +91,7 @@ class Calculator extends Component{
                 	i--;
                 	flag = 0;
                 }
-                stackInt.push(parseInt(a));
+                stackInt.push(parseFloat(a));
 			}
             else if(expr[i] === '(')
             	stackOps.push(expr[i]);
@@ -93,6 +116,10 @@ class Calculator extends Component{
                 console.log("Pushing i " + expr[i]);
                 stackOps.push(expr[i]);
             }
+            else
+            {
+            	stackInt.push(expr[i]);
+            }
             console.log("Stack op" + stackOps);
             console.log("Stack Int " + stackInt);
             
@@ -111,15 +138,25 @@ class Calculator extends Component{
         {
         	a = stackInt.pop();
         }
-        stackInt.push(a);
+        console.log("a = " + a);
+        console.log("StackInt =  " + stackInt);
         this.setState({answer:a,expr:[]});
 	}
 
 	applyOp(op , a , b)
 	{
-		let t = a;
-		a = b;
-		b = t;
+		let t = b;
+		b = a;
+		a = t;
+		if(op === '/')
+		{
+			if(a < b)
+			{
+				let temp = a;
+				a = b;
+				b = temp;
+			}
+		}
 		console.log(op + ' ' + a + b);
 		switch(op)
 		{
@@ -162,7 +199,7 @@ class Calculator extends Component{
 	{
 		let arr = this.state.expr;
 		let answer = this.state.answer;
-		if(arr.length === 0)
+		if(arr.length===0)
 			return answer;
 		else
 		{
